@@ -6,6 +6,8 @@
   margin-bottom: 40px;
   border-bottom: 1px solid rgba(54, 54, 54, 0.7);
   padding-bottom: 41px;
+  display: flex;
+  justify-content: space-between;
 }
 
 @media screen and (max-width: 500px) {
@@ -16,3 +18,9 @@
   }
 }
 
+@media screen and (max-width: 380px) {
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+}

@@ -54,10 +54,3 @@ function Card({card, onCardClick, onCardLike, onTrashButton}) {
    }
 
    export default Card;
-
-
-   /*
-    <DeletePopup 
-      card={card}/>
-    </>
-   */

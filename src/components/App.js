@@ -1,14 +1,22 @@
 import React from 'react';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import {CurrentUserContext} from '../contexts/CurrentUserContext';
+import * as Auth from './Auth';
 import {api} from '../utils/Api';
 import Header from './Header';
-import Main from './Main';
+import MyProfile from './MyProfile';
 import Footer from './Footer';
 import DeletePopup from './DeletePopup';
 import ImagePopup from './ImagePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import EditProfilePopup from './EditProfilePopup';
 import AddPlacePopup from './AddPlacePopup';
-import {CurrentUserContext} from '../contexts/CurrentUserContext';
+import Login from './Login';
+import Register from './Register';
+import ProtectedRoute from "./ProtectedRoute";
+import InfoTooltip from './InfoTooltip';
+
+
 
 function App() {
   const [cards, setCards] = React.useState([]);
@@ -17,9 +25,81 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = React.useState(false);
+  const [isInfoTooltip, setIsInfoTooltip] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
   const [showLoading, setShowLoading] = React.useState(false);
   const [selectedCardToDelete, setSelectedCardToDelete] = React.useState({});
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [noMistake, setNoMistake] = React.useState(false);
+  const [userEmail, setUserEmail] = React.useState("");
+  
+  const history = useHistory();
+
+  function signOut(){
+    localStorage.removeItem('jwt');//// как его удалить?
+    setLoggedIn(false)
+    setUserEmail("")
+    history.push('/login');
+  }
+
+  function handleRegSubmit(login){
+    Auth.register({
+      password:login.password,
+      email:login.email,
+  })
+    .then(() => {
+      setNoMistake(true)
+      setIsInfoTooltip(true)
+    }) 
+    .then((res) => {
+      history.push('/login');
+    })
+    .catch((err) => {
+      setIsInfoTooltip(true)
+      setNoMistake(false)
+      console.log(err)
+    })
+}
+
+  function handleLogin(password, email){
+    Auth.authorize(password, email)
+      .then ((token) => {
+        Auth.getContent(token)
+          //.then(()=>{console.log(token)})
+          .then(() => {
+            setUserEmail(email)
+            setLoggedIn(true)
+            history.push('/my-profile')
+          })
+      .catch((err) => {
+        console.log(err)
+      })
+      })}
+
+  React.useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  function tokenCheck() {
+    // если у пользователя есть токен в localStorage,
+    // эта функция проверит валидность токена
+      const jwt = localStorage.getItem('jwt');
+    if (jwt){
+      // проверим токен
+      Auth.getContent(jwt).then((res) => {
+        if (res){
+                  // авторизуем пользователя
+          setLoggedIn({
+            loggedIn: true,
+          }, () => {
+                      // обернём App.js в withRouter
+                      // так, что теперь есть доступ к этому методу
+            history.push("/my-profile");
+          });
+        }
+      }); 
+    }
+  } 
 
   React.useEffect(() => {
     api.getInitialCards()
@@ -142,23 +222,60 @@ function App() {
     setIsAddPlacePopupOpen(false)
     setIsEditProfilePopupOpen(false)
     setIsDeletePopupOpen(false)
+    setIsInfoTooltip(false)
     setSelectedCard({})
     setSelectedCardToDelete({})
   }
 
   return (
+    <Switch>
     <CurrentUserContext.Provider value={currentUser}>
     <div className="body">
     <div className="page">
-      <Header />
-      <Main
-      onEditProfile={handleEditProfileClick}
-      onAddPlace={handleAddPlaceClick}
-      onEditAvatar={handleEditAvatarClick} 
-      onCardClick={handleCardClick}
-      onCardLike={handleCardLike}
-      onTrashButton={handleDeleteCardClick}
-      cards={cards}/>
+      
+      <Header 
+          loggedIn={loggedIn}
+          userEmail={userEmail}
+          onSignOut={signOut}
+      />
+
+      <Route path="/sign-up">
+      </Route>
+
+      <Route path="/sign-in">
+      </Route>
+
+      <Route>
+          {loggedIn ? (
+            <Redirect to="/my-profile" />
+          ) : (
+            <Redirect to="/login" />
+          )}
+      </Route>
+
+      <Route exact path="/login">
+            <Login  
+            onLogin={handleLogin}/>
+      </Route>
+
+      <Route path="/register">
+            <Register 
+            onRegister={handleRegSubmit}
+            />
+      </Route>
+
+      <ProtectedRoute
+          path="/my-profile"
+          loggedIn={loggedIn}
+          component={MyProfile}
+          onEditProfile={handleEditProfileClick}
+          onAddPlace={handleAddPlaceClick}
+          onEditAvatar={handleEditAvatarClick} 
+          onCardClick={handleCardClick}
+          onCardLike={handleCardLike}
+          onTrashButton={handleDeleteCardClick}
+          cards={cards}
+      />
 
       <Footer />
 
@@ -191,11 +308,18 @@ function App() {
       card={selectedCard}
       onClose={closeAllPopups}
       />
+
+      <InfoTooltip 
+      onClose={closeAllPopups}
+      isOpen={isInfoTooltip}
+      noMistake={noMistake}
+      />
+
     </div>
     </div>
     </CurrentUserContext.Provider>
+    </Switch>
   );
 }
-export default App;
 
-// card={selectedTrash}
+export default App;
