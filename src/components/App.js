@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import {CurrentUserContext} from '../contexts/CurrentUserContext';
-import * as Auth from './Auth';
+import * as auth from '../utils/Auth';
 import {api} from '../utils/Api';
 import Header from './Header';
 import MyProfile from './MyProfile';
@@ -36,14 +36,14 @@ function App() {
   const history = useHistory();
 
   function signOut(){
-    localStorage.removeItem('jwt');//// как его удалить?
+    localStorage.removeItem('token');//// как его удалить?
     setLoggedIn(false)
     setUserEmail("")
     history.push('/login');
   }
 
   function handleRegSubmit(login){
-    Auth.register({
+    auth.register({
       password:login.password,
       email:login.email,
   })
@@ -59,12 +59,12 @@ function App() {
       setNoMistake(false)
       console.log(err)
     })
-}
+  }
 
   function handleLogin(password, email){
-    Auth.authorize(password, email)
+    auth.authorize(password, email)
       .then ((token) => {
-        Auth.getContent(token)
+        auth.getContent(token)
           //.then(()=>{console.log(token)})
           .then(() => {
             setUserEmail(email)
@@ -74,7 +74,8 @@ function App() {
       .catch((err) => {
         console.log(err)
       })
-      })}
+      })
+  }
 
   React.useEffect(() => {
     tokenCheck();
@@ -83,21 +84,19 @@ function App() {
   function tokenCheck() {
     // если у пользователя есть токен в localStorage,
     // эта функция проверит валидность токена
-      const jwt = localStorage.getItem('jwt');
-    if (jwt){
+      const token = localStorage.getItem('token');
+    if (token){
       // проверим токен
-      Auth.getContent(jwt).then((res) => {
+      auth.getContent(token).then((res) => {
         if (res){
-                  // авторизуем пользователя
-          setLoggedIn({
-            loggedIn: true,
-          }, () => {
-                      // обернём App.js в withRouter
-                      // так, что теперь есть доступ к этому методу
-            history.push("/my-profile");
-          });
+          setUserEmail(res.data.email)
+          setLoggedIn(true)
+          history.push('/my-profile')
         }
-      }); 
+      }) 
+      .catch((err) => {
+        console.log(err)
+      })
     }
   } 
 
