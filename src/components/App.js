@@ -72,6 +72,8 @@ function App() {
             history.push('/my-profile')
           })
       .catch((err) => {
+        setIsInfoTooltip(true)
+        setNoMistake(false)
         console.log(err)
       })
       })
