@@ -20,7 +20,7 @@ function Header({loggedIn, userEmail, onSignOut}) {
       :
       (<>
       <Route path="/login">
-        <Link to="/register" className="header__nav-link">Регистрация</Link>
+        <Link to="/register" className="header__nav-link header__nav-reg">Регистрация</Link>
       </Route>
       <Route path="/register">
         <Link to="/login" className="header__nav-link">Войти</Link>

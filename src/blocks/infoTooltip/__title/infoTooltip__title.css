@@ -12,7 +12,8 @@
 @media screen and (max-width: 600px) {
     .infoTooltip__title {
       min-width: 244px;
-      margin-left: 18px;
-      margin-right: 18px;
+      /*margin-left: 18px;
+      margin-right: 18px;*/
+      margin: auto;
     }
   }

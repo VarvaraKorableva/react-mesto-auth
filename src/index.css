@@ -25,6 +25,7 @@ code {
 @import url(./blocks/header/__nav/header__nav.css);
 @import url(./blocks/header/__nav-link/header__nav-link.css);
 @import url(./blocks/header/__exit-button/header__exit-button.css);
+@import url(./blocks/header/__nav-reg/header__nav-reg.css);
 
 
 @import url(./blocks/profile/profile.css);
