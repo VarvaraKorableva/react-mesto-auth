@@ -5,13 +5,13 @@ Implemented registration and authorization of users on the server with the prese
 Created with Create React App.
 Developed according to the Yandex.Practice layout***
 
-##Technologies:
-+React Create App
-+CSS
-+HTML
-+JavaScript
-+Webpack
-+BAM
-+Adaptive layout
+## Technologies:
++ React Create App
++ CSS
++ HTML
++ JavaScript
++ Webpack
++ BAM
++ Adaptive layout
 
 ## You can try the app from the link https://varvarakorableva.github.io/react-mesto-auth/
