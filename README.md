@@ -7,6 +7,7 @@ Developed according to the Yandex.Practice layout***
 
 ## Technologies:
 + React Create App
++ JSX
 + CSS
 + HTML
 + JavaScript
